@@ -1,0 +1,30 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to Stiebel Eltron WPM G",
+        "description": "Enter the IP address and port of your {manufacturer} {model} heat pump controller (ISG web).",
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        },
+        "data_description": {
+          "host": "IP address of the ISG web controller",
+          "port": "Modbus TCP port (default: 502)"
+        }
+      },
+      "dhcp_confirm": {
+        "title": "Confirm WPM G Discovery",
+        "description": "Confirm setup of Stiebel Eltron WPM G at {host}"
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to the heat pump. Check the host and port.",
+      "already_configured": "This heat pump is already configured."
+    },
+    "abort": {
+      "already_configured_device": "This heat pump is already configured.",
+      "cannot_connect": "Failed to connect to the heat pump."
+    }
+  }
+}
