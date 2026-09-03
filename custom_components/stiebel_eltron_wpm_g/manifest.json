@@ -1,0 +1,12 @@
+{
+  "domain": "stiebel_eltron_wpm_g",
+  "name": "Stiebel Eltron WPM G",
+  "codeowners": ["@MoeLa"],
+  "config_flow": true,
+  "documentation": "https://github.com/MoeLa/ha-stiebel-eltron-wpm-g",
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "requirements": ["pymodbus>=3.1.0"],
+  "version": "0.1.0",
+  "homeassistant": "2023.12.0"
+}
