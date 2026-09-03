@@ -1,21 +1,19 @@
-"""Stiebel Eltron WPM G heat pump integration."""
+"""Stiebel Eltron WPM G integration using Home Assistant Modbus."""
 
 from __future__ import annotations
 
 import logging
-from typing import Final
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_PORT, Platform
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.helpers.typing import ConfigType
 
 from .const import DEFAULT_PORT, DOMAIN
-from .coordinator import WPMGDataCoordinator
 
 _LOGGER: logging.Logger = logging.getLogger(__name__)
 
-PLATFORMS: Final = [Platform.CLIMATE, Platform.SENSOR]
+PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.CLIMATE]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -23,18 +21,28 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     host = entry.data[CONF_HOST]
     port = entry.data.get(CONF_PORT, DEFAULT_PORT)
 
-    coordinator = WPMGDataCoordinator(hass, host, port)
+    # Configure Modbus integration
+    modbus_config = {
+        "name": "stiebel_eltron_wpm_g",
+        "type": "tcp",
+        "host": host,
+        "port": port,
+    }
 
-    try:
-        await coordinator.async_config_entry_first_refresh()
-    except Exception as err:
-        raise ConfigEntryNotReady(f"Failed to connect to {host}") from err
+    # Add to Modbus integration
+    await hass.config_entries.flow.async_init(
+        "modbus",
+        context={"source": "import"},
+        data=modbus_config,
+    )
 
     hass.data.setdefault(DOMAIN, {})
-    hass.data[DOMAIN][entry.entry_id] = coordinator
+    hass.data[DOMAIN][entry.entry_id] = {
+        "host": host,
+        "port": port,
+    }
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-
     return True
 
 
