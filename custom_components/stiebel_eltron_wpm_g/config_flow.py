@@ -24,20 +24,35 @@ async def validate_connection(host: str, port: int) -> bool:
     client = AsyncModbusTcpClient(host=host, port=port)
 
     try:
-        connected = await client.connect()
-        if not connected:
+        await client.connect()
+        if not client.connected:
             return False
 
-        # Try to read a register to verify connection
-        result = await client.read_input_registers(address=36000, count=1, unit=1)
+        # Try to read a basic register to verify connection
+        # Using slave_id instead of unit for newer pymodbus versions
+        result = await client.read_input_registers(address=36000, count=1, slave_id=1)
         await client.close()
 
         return not result.isError()
 
-    except ModbusException:
+    except TypeError:
+        # Fallback for older pymodbus versions
+        try:
+            await client.connect()
+            if not client.connected:
+                return False
+            
+            result = await client.read_input_registers(address=36000, count=1, unit=1)
+            await client.close()
+            return not result.isError()
+        except Exception as err:
+            _LOGGER.debug(f"Connection validation error (retry): {err}")
+            return False
+    except ModbusException as err:
+        _LOGGER.debug(f"Modbus error during validation: {err}")
         return False
     except Exception as err:
-        _LOGGER.error(f"Connection error: {err}")
+        _LOGGER.debug(f"Connection error: {err}")
         return False
 
 
